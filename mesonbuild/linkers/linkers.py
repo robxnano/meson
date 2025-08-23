@@ -170,6 +170,9 @@ class DynamicLinker(metaclass=abc.ABCMeta):
         # avoid issues with quoting and max argument length
         return mesonlib.is_windows()
 
+    def get_supports_gnu_version_script(self) -> bool:
+        return False
+
     def rsp_file_syntax(self) -> RSPFileSyntax:
         """The format of the RSP file that this compiler supports.
 
@@ -277,6 +280,12 @@ class DynamicLinker(metaclass=abc.ABCMeta):
         TODO: A future cleanup might merge this and
               get_allow_undefined_args() into a single method taking a
               boolean
+        """
+        return []
+
+    def gnu_version_script_args(self, scriptfile: str) -> T.List[str]:
+        """The argument to use to link a version script given with the
+        gnu_version_script kwarg.
         """
         return []
 
@@ -647,6 +656,9 @@ class GnuLikeDynamicLinkerMixin(DynamicLinkerBase):
     def get_accepts_rsp(self) -> bool:
         return True
 
+    def get_supports_gnu_version_script(self) -> bool:
+        return True
+
     def get_pie_args(self) -> T.List[str]:
         return ['-pie']
 
@@ -688,6 +700,9 @@ class GnuLikeDynamicLinkerMixin(DynamicLinkerBase):
 
     def no_undefined_args(self) -> T.List[str]:
         return self._apply_prefix('--no-undefined')
+
+    def gnu_version_script_args(self, scriptfile: str) -> T.List[str]:
+        return self._apply_prefix('--version-script,' + scriptfile)
 
     def fatal_warnings(self) -> T.List[str]:
         return self._apply_prefix('--fatal-warnings')
@@ -1505,6 +1520,12 @@ class SolarisDynamicLinker(PosixDynamicLinkerMixin, DynamicLinker):
 
     def no_undefined_args(self) -> T.List[str]:
         return ['-z', 'defs']
+
+    def get_supports_gnu_version_script(self) -> bool:
+        return True
+
+    def gnu_version_script_args(self, scriptfile: str) -> T.List[str]:
+        return self._apply_prefix('-M,' + scriptfile)
 
     def get_allow_undefined_args(self) -> T.List[str]:
         return ['-z', 'nodefs']

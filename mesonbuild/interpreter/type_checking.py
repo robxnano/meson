@@ -526,6 +526,12 @@ RUST_ABI_KW: KwargInfo[T.Union[str, None]] = KwargInfo(
     since='1.3.0',
     validator=in_set_validator({'rust', 'c'}))
 
+_GNU_VERSION_SCRIPT_KW: KwargInfo[T.Optional[T.Union[str, File, CustomTarget, CustomTargetIndex]]] = KwargInfo(
+    'gnu_version_script',
+    (str, File, CustomTarget, CustomTargetIndex, NoneType),
+    since_values={CustomTargetIndex: '1.10.0'}
+)
+
 _VS_MODULE_DEFS_KW: KwargInfo[T.Optional[T.Union[str, File, CustomTarget, CustomTargetIndex]]] = KwargInfo(
     'vs_module_defs',
     (str, File, CustomTarget, CustomTargetIndex, NoneType),
@@ -733,6 +739,7 @@ EXECUTABLE_KWS = [
     *_BUILD_TARGET_KWS,
     *_EXCLUSIVE_EXECUTABLE_KWS,
     _VS_MODULE_DEFS_KW.evolve(since='1.3.0', since_values=None),
+    _GNU_VERSION_SCRIPT_KW.evolve(since='1.10.0', since_values=None),
     _JAVA_LANG_KW,
 ]
 
@@ -769,6 +776,7 @@ SHARED_LIB_KWS = [
     *_BUILD_TARGET_KWS,
     *_EXCLUSIVE_SHARED_LIB_KWS,
     *_EXCLUSIVE_LIB_KWS,
+    _GNU_VERSION_SCRIPT_KW.evolve(since='1.10.0', since_values=None),
     _VS_MODULE_DEFS_KW,
     _JAVA_LANG_KW,
 ]
@@ -782,6 +790,7 @@ SHARED_MOD_KWS = [
     *_BUILD_TARGET_KWS,
     *_EXCLUSIVE_SHARED_MOD_KWS,
     *_EXCLUSIVE_LIB_KWS,
+    _GNU_VERSION_SCRIPT_KW.evolve(since='1.10.0', since_values=None),
     _VS_MODULE_DEFS_KW,
     _JAVA_LANG_KW,
 ]
@@ -823,6 +832,7 @@ LIBRARY_KWS = [
     *_EXCLUSIVE_SHARED_MOD_KWS,
     *_EXCLUSIVE_STATIC_LIB_KWS,
     *_SHARED_STATIC_ARGS,
+    _GNU_VERSION_SCRIPT_KW.evolve(since='1.10.0', since_values=None),
     _VS_MODULE_DEFS_KW,
     _JAVA_LANG_KW,
 ]

@@ -141,6 +141,9 @@ class ClangCompiler(GnuLikeCompiler):
             # Shouldn't work, but it'll be checked explicitly in the OpenMP dependency.
             return []
 
+    def gen_gnu_version_script_args(self, defsfile: str) -> T.List[str]:
+        return super().gen_gnu_version_script_args(defsfile)
+
     def gen_vs_module_defs_args(self, defsfile: str) -> T.List[str]:
         if isinstance(self.linker, (ClangClDynamicLinker, MSVCDynamicLinker)):
             # With MSVC, DLLs only export symbols that are explicitly exported,

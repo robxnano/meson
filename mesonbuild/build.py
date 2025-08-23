@@ -114,9 +114,9 @@ known_build_target_kwargs = (
     cs_kwargs |
     swift_kwargs)
 
-known_exe_kwargs = known_build_target_kwargs | {'implib', 'export_dynamic', 'pie', 'vs_module_defs', 'android_exe_type'}
-known_shlib_kwargs = known_build_target_kwargs | {'version', 'soversion', 'vs_module_defs', 'darwin_versions', 'rust_abi'}
-known_shmod_kwargs = known_build_target_kwargs | {'vs_module_defs', 'rust_abi'}
+known_exe_kwargs = known_build_target_kwargs | {'implib', 'export_dynamic', 'pie', 'vs_module_defs', 'android_exe_type', 'gnu_version_script'}
+known_shlib_kwargs = known_build_target_kwargs | {'version', 'soversion', 'vs_module_defs', 'darwin_versions', 'rust_abi', 'gnu_version_script'}
+known_shmod_kwargs = known_build_target_kwargs | {'vs_module_defs', 'rust_abi', 'gnu_version_script'}
 known_stlib_kwargs = known_build_target_kwargs | {'pic', 'prelink', 'rust_abi'}
 known_jar_kwargs = known_exe_kwargs | {'main_class', 'java_resources'}
 
@@ -1766,6 +1766,28 @@ class BuildTarget(Target):
                                      'use shared_library() with `override_options: [\'b_lundef=false\']` instead.')
                     link_target.force_soname = True
 
+    def process_gnu_version_script_kw(self, kwargs: T.Dict[str, T.Any]) -> None:
+        if kwargs.get('gnu_version_script') is None:
+            return
+
+        path: T.Union[str, File, CustomTarget, CustomTargetIndex] = kwargs['gnu_version_script']
+        if isinstance(path, str):
+            if os.path.isabs(path):
+                self.gnu_version_script = File.from_absolute_file(path)
+            else:
+                self.gnu_version_script = File.from_source_file(self.environment.source_dir, self.subdir, path)
+        elif isinstance(path, File):
+            # When passing a generated file.
+            self.gnu_version_script = path
+        elif isinstance(path, (CustomTarget, CustomTargetIndex)):
+            # When passing output of a Custom Target
+            self.gnu_version_script = File.from_built_file(path.get_subdir(), path.get_filename())
+        else:
+            raise InvalidArguments(
+                'gnu_version_script must be either a string, '
+                'a file object, a Custom Target, or a Custom Target Index')
+        self.process_link_depends(path)
+
     def process_vs_module_defs_kw(self, kwargs: T.Dict[str, T.Any]) -> None:
         if kwargs.get('vs_module_defs') is None:
             return
@@ -2146,6 +2168,9 @@ class Executable(BuildTarget):
         # Remember that this exe was returned by `find_program()` through an override
         self.was_returned_by_find_program = False
 
+        self.gnu_version_script: T.Optional[File] = None
+        self.process_gnu_version_script_kw(kwargs)
+
         self.vs_module_defs: T.Optional[File] = None
         self.process_vs_module_defs_kw(kwargs)
 
@@ -2417,6 +2442,7 @@ class SharedLibrary(BuildTarget):
         self.ltversion: T.Optional[str] = None
         # Max length 2, first element is compatibility_version, second is current_version
         self.darwin_versions: T.Optional[T.Tuple[str, str]] = None
+        self.gnu_version_script = None
         self.vs_module_defs = None
         # The import library this target will generate
         self.import_filename = None
@@ -2585,6 +2611,7 @@ class SharedLibrary(BuildTarget):
                 # If unspecified, pick the soversion
                 self.darwin_versions = (self.soversion, self.soversion)
 
+        self.process_gnu_version_script_kw(kwargs)
         # Visual Studio module-definitions file
         self.process_vs_module_defs_kw(kwargs)
 

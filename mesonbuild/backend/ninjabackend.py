@@ -3422,6 +3422,8 @@ https://gcc.gnu.org/bugzilla/show_bug.cgi?id=47485'''))
                 commands += linker.gen_import_library_args(self.get_import_filename(target))
             if target.pie:
                 commands += linker.get_pie_link_args()
+            if target.gnu_version_script and hasattr(linker, 'gen_gnu_version_script_args'):
+                commands += linker.gen_gnu_version_script_args(target.gnu_version_script.rel_to_builddir(self.build_to_src))
             if target.vs_module_defs and hasattr(linker, 'gen_vs_module_defs_args'):
                 commands += linker.gen_vs_module_defs_args(target.vs_module_defs.rel_to_builddir(self.build_to_src))
         elif isinstance(target, build.SharedLibrary):
@@ -3439,6 +3441,10 @@ https://gcc.gnu.org/bugzilla/show_bug.cgi?id=47485'''))
             # This is only visited when building for Windows using either GCC or Visual Studio
             if target.vs_module_defs and hasattr(linker, 'gen_vs_module_defs_args'):
                 commands += linker.gen_vs_module_defs_args(target.vs_module_defs.rel_to_builddir(self.build_to_src))
+            # This is only visited when using a linker which supports GNU version scripts
+            # and a vs_module_defs file was not used
+            elif target.gnu_version_script and linker.supports_gnu_version_script():
+                commands += linker.gen_gnu_version_script_args(target.gnu_version_script.rel_to_builddir(self.build_to_src))
             # This is only visited when building for Windows using either GCC or Visual Studio
             if target.import_filename:
                 commands += linker.gen_import_library_args(self.get_import_filename(target))

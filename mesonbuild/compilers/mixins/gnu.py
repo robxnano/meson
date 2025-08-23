@@ -409,6 +409,15 @@ class GnuLikeCompiler(Compiler, metaclass=abc.ABCMeta):
             vistype = 'hidden'
         return gnu_symbol_visibility_args[vistype]
 
+    def supports_gnu_version_script(self) -> bool:
+        return self.linker.get_supports_gnu_version_script()
+
+    def gen_gnu_version_script_args(self, scriptfile: str) -> T.List[str]:
+        if not isinstance(scriptfile, str):
+            raise RuntimeError('Version script file should be str')
+        # TODO: Make sure this works correctly on Windows
+        return self.linker.gnu_version_script_args(scriptfile)
+
     def gen_vs_module_defs_args(self, defsfile: str) -> T.List[str]:
         if not isinstance(defsfile, str):
             raise RuntimeError('Module definitions file should be str')

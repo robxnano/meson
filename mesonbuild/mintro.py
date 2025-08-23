@@ -245,6 +245,9 @@ def list_targets(builddata: build.Build, installdata: backends.InstallData, back
             'depends': [lib.get_id() for lib in getattr(target, 'dependencies', [])]
         }
 
+        gnu_version_script = getattr(target, 'gnu_version_script', None)
+        if gnu_version_script is not None:
+            t['gnu_version_script'] = gnu_version_script.relative_name()
         vs_module_defs = getattr(target, 'vs_module_defs', None)
         if vs_module_defs is not None:
             t['vs_module_defs'] = vs_module_defs.relative_name()

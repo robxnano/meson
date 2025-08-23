@@ -393,6 +393,7 @@ class Executable(_BuildTarget):
     gui_app: T.Optional[bool]
     implib: T.Optional[T.Union[str, bool]]
     pie: T.Optional[bool]
+    gnu_version_script: T.Optional[T.Union[str, File, build.CustomTarget, build.CustomTargetIndex]]
     vs_module_defs: T.Optional[T.Union[str, File, build.CustomTarget, build.CustomTargetIndex]]
     win_subsystem: T.Optional[str]
     android_exe_type: T.Optional[Literal['application', 'executable']]
@@ -413,6 +414,7 @@ class _SharedLibMixin(TypedDict):
     darwin_versions: T.Optional[T.Tuple[str, str]]
     soversion: T.Optional[str]
     version: T.Optional[str]
+    gnu_version_script: T.Optional[T.Union[str, File, build.CustomTarget, build.CustomTargetIndex]]
     vs_module_defs: T.Optional[T.Union[str, File, build.CustomTarget, build.CustomTargetIndex]]
 
 
@@ -422,6 +424,7 @@ class SharedLibrary(_BuildTarget, _SharedLibMixin, _LibraryMixin):
 
 class SharedModule(_BuildTarget, _LibraryMixin):
 
+    gnu_version_script: T.Optional[T.Union[str, File, build.CustomTarget, build.CustomTargetIndex]]
     vs_module_defs: T.Optional[T.Union[str, File, build.CustomTarget, build.CustomTargetIndex]]
 
 

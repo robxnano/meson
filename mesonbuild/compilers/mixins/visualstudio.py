@@ -194,6 +194,10 @@ class VisualStudioLikeCompiler(Compiler, metaclass=abc.ABCMeta):
     def get_pic_args(self) -> T.List[str]:
         return [] # PIC is handled by the loader on Windows
 
+    def gen_gnu_version_script_args(self, scriptfile: str) -> T.List[str]:
+        # Not supported in Visual Studio
+        return []
+
     def gen_vs_module_defs_args(self, defsfile: str) -> T.List[str]:
         if not isinstance(defsfile, str):
             raise RuntimeError('Module definitions file should be str')
